@@ -1,24 +1,31 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const routes = require("./routes");
+const dotenv = require("dotenv");
+const cors = require("cors");
+const studentRoutes = require("./routes/studentRoutes");
+
+dotenv.config(); // Load environment variables
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
-// Routes
-app.use("/api", routes);
+// API routes
+app.use("/api/students", studentRoutes);
 
-// Connect to MongoDB
-mongoose.connect("mongodb+srv://piyush:admin123@cluster0.l4kcdbe.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0", {
+// MongoDB connection
+mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
 .then(() => {
-  console.log("Connected to MongoDB");
+  console.log("✅ Connected to MongoDB");
 
-  const PORT = process.env.PORT || 10000; // Render default port
+  const PORT = process.env.PORT || 10000;
   app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`🚀 Server running on port ${PORT}`);
   });
 })
-.catch((err) => console.error("MongoDB connection error:", err));
+.catch((err) => {
+  console.error("❌ MongoDB connection error:", err);
+});
