@@ -3,6 +3,7 @@ const router = express.Router();
 const Student = require("../models/Student");
 const Attendance = require("../models/Attendance");
 const Fees = require("../models/Fees");
+const Marks = require("../models/Marks"); // ✅ add Marks model
 
 // LOGIN route (for students only)
 router.post("/login", async (req, res) => {
@@ -31,7 +32,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// CREATE student account + attendance + fees
+// CREATE student account + attendance + fees + marks
 router.post("/create", async (req, res) => {
   try {
     const newStudent = new Student(req.body);
@@ -61,7 +62,19 @@ router.post("/create", async (req, res) => {
     });
     await fees.save();
 
-    res.status(201).json({ success: true, message: "Student, attendance, and fees created successfully" });
+    // ✅ Create empty marks
+    const marks = new Marks({
+      roll: newStudent.roll,
+      name: newStudent.name,
+      year: newStudent.year,
+      marks: {
+        sem1: {}, sem2: {}, sem3: {}, sem4: {},
+        sem5: {}, sem6: {}, sem7: {}, sem8: {}
+      }
+    });
+    await marks.save();
+
+    res.status(201).json({ success: true, message: "Student, attendance, fees, and marks created successfully" });
   } catch (err) {
     console.error("Create error:", err);
     res.status(400).json({ success: false, message: "Failed to create student or related records" });
