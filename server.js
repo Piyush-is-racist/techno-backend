@@ -5,8 +5,6 @@ const cors = require("cors");
 const studentRoutes = require("./routes/studentRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 
-app.use("/api/students", studentRoutes);
-app.use("/api/admins", adminRoutes);
 
 dotenv.config(); // Load environment variables
 
@@ -16,6 +14,8 @@ app.use(cors());
 
 // API routes
 app.use("/api/students", studentRoutes);
+app.use("/api/admins", adminRoutes);
+
 
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI, {
