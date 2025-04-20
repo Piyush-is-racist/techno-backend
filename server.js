@@ -5,6 +5,7 @@ const cors = require("cors");
 const studentRoutes = require("./routes/studentRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const authRoutes = require("./routes/authRoutes");
+
 dotenv.config(); // Load environment variables
 
 const app = express();
