@@ -1,9 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const dotenv = require("dotenv");
 const routes = require("./routes");
-
-dotenv.config();
 
 const app = express();
 app.use(express.json());
@@ -12,14 +9,14 @@ app.use(express.json());
 app.use("/api", routes);
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI, {
+mongoose.connect("mongodb+srv://piyush:admin123@cluster0.l4kcdbe.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
 .then(() => {
   console.log("Connected to MongoDB");
 
-  const PORT = process.env.PORT || 3000;
+  const PORT = process.env.PORT || 10000; // Render default port
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
