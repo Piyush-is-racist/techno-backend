@@ -15,10 +15,9 @@ const handleSubmit = async (e) => {
     if (res.ok && data.success) {
       if (data.role === "admin") {
         navigate("/admin-dashboard");
-      } else if (data.role === "student") {
+      } else  {
         navigate("/dashboard");
-      } else {
-        setError("Unknown role.");
+   
       }
     } else {
       setError("Invalid ID or Password.");
