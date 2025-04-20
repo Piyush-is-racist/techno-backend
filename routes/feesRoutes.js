@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Fees = require("../models/Fees");
 
+// GET all fee records
 router.get("/", async (req, res) => {
   try {
     const data = await Fees.find();
@@ -11,20 +12,29 @@ router.get("/", async (req, res) => {
   }
 });
 
+// POST multiple fees records (bulk sync from Google Sheets)
 router.post("/", async (req, res) => {
-  const { roll, name, year, semesters } = req.body;
+  const records = req.body; // expecting array
+
+  if (!Array.isArray(records)) {
+    return res.status(400).json({ success: false, message: "Invalid format: expected an array" });
+  }
+
   try {
-    const existing = await Fees.findOne({ roll });
-    if (existing) {
-      existing.semesters = semesters;
-      await existing.save();
-      return res.json({ success: true, message: "Fees updated" });
+    for (const entry of records) {
+      const { roll, name, year, semesters } = entry;
+
+      await Fees.findOneAndUpdate(
+        { roll },
+        { roll, name, year, semesters },
+        { upsert: true, new: true }
+      );
     }
 
-    await Fees.create({ roll, name, year, semesters });
-    res.status(201).json({ success: true, message: "New fees record created" });
+    res.json({ success: true, message: "Fees records updated" });
   } catch (err) {
-    res.status(500).json({ success: false, message: "Error saving fees" });
+    console.error("❌ Fees sync error:", err);
+    res.status(500).json({ success: false, message: "Error saving fees records" });
   }
 });
 
