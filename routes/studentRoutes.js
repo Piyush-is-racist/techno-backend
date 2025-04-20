@@ -2,36 +2,29 @@ const express = require("express");
 const router = express.Router();
 const Student = require("../models/studentModel");
 
-// LOGIN route
+// Simplified login route
 router.post("/login", async (req, res) => {
   const { roll, password } = req.body;
 
-  // Admin login
+  // Admin check
   if (roll === "admin1" && password === "admin1") {
-    return res.json({
-      roll: "admin1",
-      role: "admin"
-    });
+    return res.json({ success: true });
   }
 
   try {
     const student = await Student.findOne({ roll, password });
     if (!student) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      return res.status(401).json({ success: false, message: "Invalid credentials" });
     }
 
-    res.json({
-      roll: student.roll,
-      role: "student"
-    });
+    res.json({ success: true });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ success: false, message: "Server error" });
   }
 });
 
 module.exports = router;
-
 
 // CREATE account route
 router.post("/create", async (req, res) => {
