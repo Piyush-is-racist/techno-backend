@@ -8,7 +8,6 @@ const authRoutes = require("./routes/authRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
 const feesRoutes = require("./routes/feesRoutes");
 
-
 dotenv.config(); // Load environment variables
 
 const app = express();
