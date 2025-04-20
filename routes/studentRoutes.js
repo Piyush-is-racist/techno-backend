@@ -18,6 +18,14 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
+router.get("/", async (req, res) => {
+  try {
+    const students = await Student.find({});
+    res.json({ success: true, data: students });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error fetching students" });
+  }
+});
 
 // CREATE student account
 router.post("/create", async (req, res) => {
