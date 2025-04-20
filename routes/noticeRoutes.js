@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 // Get all notices
-router.get("/notice", (req, res) => {
+router.get("/notices", (req, res) => {
   // Fetch notices logic
   res.send("All notices");
 });
