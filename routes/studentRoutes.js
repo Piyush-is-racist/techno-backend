@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const Student = require("../models/Student");
+const Student = require("../models/studentModel");
 
 // LOGIN route
 router.post("/login", async (req, res) => {
@@ -9,19 +9,19 @@ router.post("/login", async (req, res) => {
   // Admin login
   if (roll === "admin1" && password === "admin1") {
     return res.json({
-      username: "Admin",
       roll: "admin1",
       role: "admin"
     });
   }
 
-  // Student login
   try {
     const student = await Student.findOne({ roll, password });
-    if (!student) return res.status(401).json({ message: "Invalid credentials" });
+    if (!student) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
 
     res.json({
-      ...student.toObject(),
+      roll: student.roll,
       role: "student"
     });
   } catch (err) {
@@ -29,6 +29,9 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+module.exports = router;
+
 
 // CREATE account route
 router.post("/create", async (req, res) => {
