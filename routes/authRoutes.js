@@ -1,3 +1,5 @@
+const express = require("express");
+const router = express.Router();
 const handleSubmit = async (e) => {
   e.preventDefault();
 
@@ -26,3 +28,4 @@ const handleSubmit = async (e) => {
     setError("Server error. Please try again later.");
   }
 };
+module.exports = router;
