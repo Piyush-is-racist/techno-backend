@@ -1,39 +1,28 @@
-const express = require("express");
-const router = express.Router();
-const Student = require("../models/Student");
-const Admin = require("../models/Admin");
-
-router.post("/login", async (req, res) => {
-  const { roll, password } = req.body;
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
   try {
-    // Try admin login first
-    const admin = await Admin.findOne({ roll, password });
-    if (admin) {
-      return res.json({
-        success: true,
-        role: "admin",
-        name: "Admin"
-      });
-    }
+    const res = await fetch("https://techno-backend-76p3.onrender.com/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ roll, password })
+    });
 
-    // Then try student login
-    const student = await Student.findOne({ roll, password });
-    if (student) {
-      return res.json({
-        success: true,
-        role: "student",
-        name: student.name,
-        student
-      });
-    }
+    const data = await res.json();
 
-    // If neither found
-    return res.status(401).json({ success: false, message: "Invalid credentials" });
+    if (res.ok && data.success) {
+      if (data.role === "admin") {
+        navigate("/admin-dashboard");
+      } else if (data.role === "student") {
+        navigate("/dashboard");
+      } else {
+        setError("Unknown role.");
+      }
+    } else {
+      setError("Invalid ID or Password.");
+    }
   } catch (err) {
-    console.error("Login error:", err);
-    res.status(500).json({ success: false, message: "Server error" });
+    console.error(err);
+    setError("Server error. Please try again later.");
   }
-});
-
-module.exports = router;
+};
