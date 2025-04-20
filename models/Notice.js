@@ -1,15 +1,10 @@
-// models/Notice.js
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const noticeSchema = new mongoose.Schema({
-  title: String,
+  title: { type: String, required: true },
   description: String,
-  fileUrl: String,
-  fileType: String,
-  date: {
-    type: Date,
-    default: Date.now
-  }
+  fileURL: String,
+  date: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model('Notice', noticeSchema);
+module.exports = mongoose.model("Notice", noticeSchema);
