@@ -12,7 +12,7 @@ router.post("/login", async (req, res) => {
   }
 
   try {
-    const student = await Student.findOne({ roll, password });
+const student = await Student.findOne({ roll, password });
     if (!student) {
       return res.status(401).json({ success: false, message: "Invalid credentials" });
     }
