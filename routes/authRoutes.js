@@ -1,30 +1,31 @@
 const express = require("express");
 const router = express.Router();
-const handleSubmit = async (e) => {
-  e.preventDefault();
+const Admin = require("../models/Admin");
+const Student = require("../models/Student");
+
+// Unified LOGIN route for admin and student
+router.post("/login", async (req, res) => {
+  const { roll, password } = req.body;
 
   try {
-    const res = await fetch("https://techno-backend-76p3.onrender.com/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ roll, password })
-    });
-
-    const data = await res.json();
-
-    if (res.ok && data.success) {
-      if (data.role === "admin") {
-        navigate("/admin-dashboard");
-      } else  {
-        navigate("/dashboard");
-   
-      }
-    } else {
-      setError("Invalid ID or Password.");
+    // Check admin first
+    const admin = await Admin.findOne({ roll, password });
+    if (admin) {
+      return res.json({ success: true, role: "admin" });
     }
+
+    // Check student
+    const student = await Student.findOne({ roll, password });
+    if (student) {
+      return res.json({ success: true, role: "student", student });
+    }
+
+    // If neither found
+    return res.status(401).json({ success: false, message: "Invalid credentials" });
   } catch (err) {
-    console.error(err);
-    setError("Server error. Please try again later.");
+    console.error("Unified login error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
   }
-};
+});
+
 module.exports = router;
