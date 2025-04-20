@@ -1,16 +1,19 @@
-const express = require("express");
-const router = express.Router();
+router.post("/login", async (req, res) => {
+  const { roll, password } = req.body;
 
-// Example login route
-router.post("/login", (req, res) => {
-  // Login logic here
-  res.send("Login route");
+  if (roll === "admin1" && password === "admin1") {
+    return res.json({ success: true });
+  }
+
+  try {
+    const student = await Student.findOne({ roll, password });
+    if (!student) {
+      return res.status(401).json({ success: false, message: "Invalid credentials" });
+    }
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
 });
-
-// Example register route
-router.post("/register", (req, res) => {
-  // Register logic here
-  res.send("Register route");
-});
-
-module.exports = router;
