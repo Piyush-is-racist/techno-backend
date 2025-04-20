@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const Student = require("../models/studentModel");
+const Student = require("../models/Student");
 
 // Simplified login route
 router.post("/login", async (req, res) => {
@@ -23,6 +23,8 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
+
+module.exports = router;
 
 module.exports = router;
 
