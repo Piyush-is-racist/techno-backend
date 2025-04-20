@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Attendance = require("../models/Attendance");
 
+// GET all attendance data
 router.get("/", async (req, res) => {
   try {
     const data = await Attendance.find();
@@ -11,20 +12,29 @@ router.get("/", async (req, res) => {
   }
 });
 
+// POST multiple attendance records (bulk sync from Google Sheets)
 router.post("/", async (req, res) => {
-  const { roll, name, year, months } = req.body;
+  const records = req.body; // Expecting an array of attendance objects
+
+  if (!Array.isArray(records)) {
+    return res.status(400).json({ success: false, message: "Invalid format: expected an array" });
+  }
+
   try {
-    const existing = await Attendance.findOne({ roll });
-    if (existing) {
-      existing.months = months;
-      await existing.save();
-      return res.json({ success: true, message: "Updated attendance" });
+    for (const entry of records) {
+      const { roll, name, year, months } = entry;
+
+      await Attendance.findOneAndUpdate(
+        { roll },
+        { roll, name, year, months },
+        { upsert: true, new: true }
+      );
     }
 
-    await Attendance.create({ roll, name, year, months });
-    res.status(201).json({ success: true, message: "Created new attendance record" });
+    res.json({ success: true, message: "Attendance records updated" });
   } catch (err) {
-    res.status(500).json({ success: false, message: "Error saving attendance" });
+    console.error("❌ Attendance sync error:", err);
+    res.status(500).json({ success: false, message: "Error saving attendance records" });
   }
 });
 
