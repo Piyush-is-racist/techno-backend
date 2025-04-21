@@ -3,7 +3,7 @@ const router = express.Router();
 const Student = require("../models/Student");
 const Attendance = require("../models/Attendance");
 const Fees = require("../models/Fees");
-const Marks = require("../models/Marks"); // ✅ add Marks model
+const Marks = require("../models/Marks");
 
 // LOGIN route (for students only)
 router.post("/login", async (req, res) => {
@@ -62,14 +62,28 @@ router.post("/create", async (req, res) => {
     });
     await fees.save();
 
-    // ✅ Create empty marks
+    // Create empty marks
+    const emptySubjects = {
+      sub1: { ca1: 0, ca2: 0, ca3: 0, ca4: 0 },
+      sub2: { ca1: 0, ca2: 0, ca3: 0, ca4: 0 },
+      sub3: { ca1: 0, ca2: 0, ca3: 0, ca4: 0 },
+      sub4: { ca1: 0, ca2: 0, ca3: 0, ca4: 0 },
+      sub5: { ca1: 0, ca2: 0, ca3: 0, ca4: 0 }
+    };
+
     const marks = new Marks({
       roll: newStudent.roll,
       name: newStudent.name,
       year: newStudent.year,
       marks: {
-        sem1: {}, sem2: {}, sem3: {}, sem4: {},
-        sem5: {}, sem6: {}, sem7: {}, sem8: {}
+        sem1: emptySubjects,
+        sem2: emptySubjects,
+        sem3: emptySubjects,
+        sem4: emptySubjects,
+        sem5: emptySubjects,
+        sem6: emptySubjects,
+        sem7: emptySubjects,
+        sem8: emptySubjects
       }
     });
     await marks.save();
