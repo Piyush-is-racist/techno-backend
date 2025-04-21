@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const Marks = require("../models/Marks");
 
-// GET all marks
 router.get("/", async (req, res) => {
   try {
     const data = await Marks.find();
@@ -12,25 +11,23 @@ router.get("/", async (req, res) => {
   }
 });
 
-// POST bulk marks
 router.post("/", async (req, res) => {
-  const records = req.body;
-  if (!Array.isArray(records)) {
-    return res.status(400).json({ success: false, message: "Expected an array" });
-  }
-
   try {
-    for (const entry of records) {
-      await Marks.findOneAndUpdate(
-        { roll: entry.roll },
-        entry,
-        { upsert: true, new: true }
-      );
+    const incoming = Array.isArray(req.body) ? req.body : [req.body];
+
+    for (const markEntry of incoming) {
+      const existing = await Marks.findOne({ roll: markEntry.roll });
+      if (existing) {
+        existing.marks = markEntry.marks;
+        await existing.save();
+      } else {
+        await Marks.create(markEntry);
+      }
     }
-    res.json({ success: true, message: "Marks records updated" });
+
+    res.status(201).json({ success: true, message: "Marks processed" });
   } catch (err) {
-    console.error("❌ Marks sync error:", err);
-    res.status(500).json({ success: false, message: "Error saving marks records" });
+    res.status(500).json({ success: false, message: "Error saving marks" });
   }
 });
 
