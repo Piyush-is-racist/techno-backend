@@ -2,16 +2,6 @@ const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cors = require("cors");
-
-// Load environment variables
-dotenv.config();
-
-// Initialize app
-const app = express();
-app.use(express.json());
-app.use(cors());
-
-// Route imports
 const studentRoutes = require("./routes/studentRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const authRoutes = require("./routes/authRoutes");
@@ -23,17 +13,24 @@ const homeworkRoutes = require("./routes/homeworkRoutes");
 const classworkRoutes = require("./routes/classworkRoutes");
 const galleryRoutes = require("./routes/galleryRoutes");
 
-// Mount API routes
-app.use("/api/auth", authRoutes);                          // 🔐 Login/Register
-app.use("/api/students", studentRoutes);                   // 👨‍🎓 Students CRUD
-app.use("/api/admins", adminRoutes);                       // 🧑‍💼 Admin functions
-app.use("/api/attendance", attendanceRoutes);              // 🗓️ Attendance
-app.use("/api/fees", feesRoutes);                          // 💸 Fees
-app.use("/api/students/notices", noticeRoutes);            // 📢 Notices
-app.use("/api/marks", marksRoutes);                        // 📝 Marks
-app.use("/api/students/homework", homeworkRoutes);         // 🏠 Homework
-app.use("/api/students/classwork", classworkRoutes);       // 📚 Classwork
-app.use("/api/students/gallery", galleryRoutes);           // 🖼️ Gallery
+dotenv.config(); // Load environment variables
+
+const app = express();
+app.use(express.json());
+app.use(cors());
+
+// API routes
+app.use("/api/students", studentRoutes);
+app.use("/api/admins", adminRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/attendance", attendanceRoutes);
+app.use("/api/fees", feesRoutes);
+app.use("/api/students/notices", noticeRoutes);
+app.use("/api/marks", marksRoutes);
+app.use("/api/students/homework", homeworkRoutes);
+app.use("/api/students/classwork", classworkRoutes);
+app.use("/api/students/gallery", galleryRoutes);
+
 
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI, {
@@ -45,7 +42,7 @@ mongoose.connect(process.env.MONGO_URI, {
 
   const PORT = process.env.PORT || 10000;
   app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(🚀 Server running on port ${PORT});
   });
 })
 .catch((err) => {
