@@ -2,6 +2,16 @@ const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cors = require("cors");
+
+// Load environment variables
+dotenv.config();
+
+// Initialize app
+const app = express();
+app.use(express.json());
+app.use(cors());
+
+// Import Routes
 const studentRoutes = require("./routes/studentRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const authRoutes = require("./routes/authRoutes");
@@ -13,24 +23,19 @@ const homeworkRoutes = require("./routes/homeworkRoutes");
 const classworkRoutes = require("./routes/classworkRoutes");
 const galleryRoutes = require("./routes/galleryRoutes");
 
-dotenv.config(); // Load environment variables
+// Mount routes
+app.use("/api/auth", authRoutes);                       // ✅ Login route
+app.use("/api/students", studentRoutes);                // ✅ Students: list, create, update
+app.use("/api/admins", adminRoutes);                    // ✅ Admin operations
 
-const app = express();
-app.use(express.json());
-app.use(cors());
+app.use("/api/attendance", attendanceRoutes);           // ✅ All attendance
+app.use("/api/fees", feesRoutes);                       // ✅ All fees
+app.use("/api/marks", marksRoutes);                     // ✅ All marks
 
-// API routes
-app.use("/api/students", studentRoutes);
-app.use("/api/admins", adminRoutes);
-app.use("/api/auth", authRoutes);
-app.use("/api/attendance", attendanceRoutes);
-app.use("/api/fees", feesRoutes);
-app.use("/api/students/notices", noticeRoutes);
-app.use("/api/marks", marksRoutes);
-app.use("/api/students/homework", homeworkRoutes);
-app.use("/api/students/classwork", classworkRoutes);
-app.use("/api/students/gallery", galleryRoutes);
-
+app.use("/api/notices", noticeRoutes);                  // ✅ All notices
+app.use("/api/homework", homeworkRoutes);               // ✅ All homework
+app.use("/api/classwork", classworkRoutes);             // ✅ All classwork
+app.use("/api/gallery", galleryRoutes);                 // ✅ All gallery
 
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI, {
