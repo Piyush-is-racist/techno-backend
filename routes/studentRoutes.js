@@ -15,7 +15,11 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ success: false, message: "Invalid credentials" });
     }
 
-    res.json({ success: true, student });
+    res.json({
+      success: true,
+      role: "student",
+      student,
+    });
   } catch (err) {
     console.error("Student login error:", err);
     res.status(500).json({ success: false, message: "Server error" });
@@ -32,13 +36,82 @@ router.get("/", async (req, res) => {
   }
 });
 
-// CREATE student account + attendance + fees + marks
+// GET a student by roll
+router.get("/:roll", async (req, res) => {
+  try {
+    const student = await Student.findOne({ roll: req.params.roll });
+    if (!student) {
+      return res.status(404).json({ success: false, message: "Student not found" });
+    }
+    res.json({ success: true, data: student });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error fetching student profile" });
+  }
+});
+
+// UPDATE student profile by roll
+router.put("/:roll", async (req, res) => {
+  try {
+    const updatedStudent = await Student.findOneAndUpdate(
+      { roll: req.params.roll },
+      req.body,
+      { new: true }
+    );
+    if (!updatedStudent) {
+      return res.status(404).json({ success: false, message: "Student not found" });
+    }
+    res.json({ success: true, data: updatedStudent });
+  } catch (error) {
+    res.status(400).json({ success: false, message: "Failed to update student profile" });
+  }
+});
+
+// GET marks by roll (read-only)
+router.get("/:roll/marks", async (req, res) => {
+  try {
+    const marks = await Marks.findOne({ roll: req.params.roll });
+    if (!marks) {
+      return res.status(404).json({ success: false, message: "Marks not found" });
+    }
+    res.json({ success: true, data: marks });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error fetching marks" });
+  }
+});
+
+// GET fees by roll (read-only)
+router.get("/:roll/fees", async (req, res) => {
+  try {
+    const fees = await Fees.findOne({ roll: req.params.roll });
+    if (!fees) {
+      return res.status(404).json({ success: false, message: "Fees not found" });
+    }
+    res.json({ success: true, data: fees });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error fetching fees" });
+  }
+});
+
+// GET attendance by roll (read-only)
+router.get("/:roll/attendance", async (req, res) => {
+  try {
+    const attendance = await Attendance.findOne({ roll: req.params.roll });
+    if (!attendance) {
+      return res.status(404).json({ success: false, message: "Attendance not found" });
+    }
+    res.json({ success: true, data: attendance });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error fetching attendance" });
+  }
+});
+
+// CREATE student + attendance + fees + marks
 router.post("/create", async (req, res) => {
   try {
     const newStudent = new Student(req.body);
     await newStudent.save();
 
-    // Create empty attendance
+    // Attendance
     const attendance = new Attendance({
       roll: newStudent.roll,
       name: newStudent.name,
@@ -50,7 +123,7 @@ router.post("/create", async (req, res) => {
     });
     await attendance.save();
 
-    // Create empty fees
+    // Fees
     const fees = new Fees({
       roll: newStudent.roll,
       name: newStudent.name,
@@ -62,7 +135,7 @@ router.post("/create", async (req, res) => {
     });
     await fees.save();
 
-    // Create empty marks
+    // Marks
     const emptySubject = {
       sub1: { ca1: 0, ca2: 0, ca3: 0, ca4: 0 },
       sub2: { ca1: 0, ca2: 0, ca3: 0, ca4: 0 },
@@ -83,12 +156,15 @@ router.post("/create", async (req, res) => {
         sem5: emptySubject,
         sem6: emptySubject,
         sem7: emptySubject,
-        sem8: emptySubject,
-      },
+        sem8: emptySubject
+      }
     });
     await marks.save();
 
-    res.status(201).json({ success: true, message: "Student, attendance, fees, and marks created successfully" });
+    res.status(201).json({
+      success: true,
+      message: "Student, attendance, fees, and marks created successfully"
+    });
   } catch (err) {
     console.error("Create error:", err);
     res.status(400).json({ success: false, message: "Failed to create student or related records" });
