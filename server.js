@@ -11,6 +11,7 @@ const noticeRoutes = require("./routes/noticeRoutes");
 const marksRoutes = require("./routes/marksRoutes");
 const homeworkRoutes = require("./routes/homeworkRoutes");
 const classworkRoutes = require("./routes/classworkRoutes");
+const galleryRoutes = require("./routes/galleryRoutes");
 
 dotenv.config(); // Load environment variables
 
@@ -28,6 +29,7 @@ app.use("/api/students/notices", noticeRoutes);
 app.use("/api/marks", marksRoutes);
 app.use("/api/students/homework", homeworkRoutes);
 app.use("/api/students/classwork", classworkRoutes);
+app.use("/api/students/gallery", galleryRoutes);
 
 
 // MongoDB connection
