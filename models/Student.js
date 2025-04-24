@@ -52,8 +52,7 @@ const studentSchema = new mongoose.Schema({
   password: String,
 
   marks: Object,
-  homework: Array,
-  classwork: Array,
+
   fees: Object,
   attendance: Object
 });
