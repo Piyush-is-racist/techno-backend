@@ -36,6 +36,22 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.post("/delete", async (req, res) => {
+   try {
+     const { rolls } = req.body;
+     if (!Array.isArray(rolls)) return res.status(400).json({ success: false, message: "Invalid data" });
+ 
+     const deleteResult = await Student.deleteMany({ roll: { $in: rolls } });
+     await Attendance.deleteMany({ roll: { $in: rolls } });
+     await Fees.deleteMany({ roll: { $in: rolls } });
+     await Marks.deleteMany({ roll: { $in: rolls } });
+ 
+     res.json({ success: true, deleted: deleteResult.deletedCount });
+   } catch (err) {
+     res.status(500).json({ success: false, message: "Error deleting students" });
+   }
+ });
+
 router.post("/", async (req, res) => {
   try {
     const incoming = req.body;
