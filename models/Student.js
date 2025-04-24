@@ -51,10 +51,7 @@ const studentSchema = new mongoose.Schema({
 
   password: String,
 
-  marks: Object,
-
-  fees: Object,
-  attendance: Object
+  
 });
 
 module.exports = mongoose.model("Student", studentSchema);
