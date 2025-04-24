@@ -43,12 +43,22 @@ router.put("/bulk", async (req, res) => {
     const updated = [];
 
     for (const data of incoming) {
-      const updatedStudent = await Student.findOneAndUpdate(
-        { roll: data.roll },
-        data,
+      const { _id, ...updateData } = data;
+
+      const updatedStudent = await Student.findByIdAndUpdate(
+        _id,
+        updateData,
         { new: true }
       );
-      if (updatedStudent) updated.push(updatedStudent);
+
+      if (updatedStudent) {
+        updated.push(updatedStudent);
+
+        // Update roll and name in other collections if changed
+        await Attendance.updateOne({ roll: updateData.roll }, { name: updateData.name });
+        await Fees.updateOne({ roll: updateData.roll }, { name: updateData.name });
+        await Marks.updateOne({ roll: updateData.roll }, { name: updateData.name });
+      }
     }
 
     res.json({ success: true, updated });
