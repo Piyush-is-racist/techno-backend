@@ -36,6 +36,35 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.post("/", async (req, res) => {
+  try {
+    const incoming = req.body;
+    const updated = [];
+
+    for (const data of incoming) {
+      const existing = await Student.findOne({ roll: data.roll });
+      if (existing) {
+        const updatedStudent = await Student.findOneAndUpdate(
+          { roll: data.roll },
+          data,
+          { new: true }
+        );
+        updated.push(updatedStudent);
+      } else {
+        const newStudent = new Student(data);
+        await newStudent.save();
+        updated.push(newStudent);
+      }
+    }
+
+    res.json({ success: true, updated });
+  } catch (error) {
+    console.error("Bulk upsert error:", error);
+    res.status(500).json({ success: false, message: "Bulk upsert failed" });
+  }
+});
+
+
 // GET a student by roll
 router.get("/:roll", async (req, res) => {
   try {
