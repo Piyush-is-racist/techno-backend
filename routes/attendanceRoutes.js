@@ -12,13 +12,25 @@ router.get("/", async (req, res) => {
   }
 });
 
-// POST multiple attendance records (bulk sync from Google Sheets)
-router.post("/", async (req, res) => {
-  const records = req.body; // Expecting an array of attendance objects
+// PUT /bulk – update existing attendance by _id
+router.put("/bulk", async (req, res) => {
+  const updates = req.body;
 
-  if (!Array.isArray(records)) {
-    return res.status(400).json({ success: false, message: "Invalid format: expected an array" });
+  try {
+    for (const item of updates) {
+      const { _id, ...rest } = item;
+      await Attendance.findByIdAndUpdate(_id, rest, { new: true });
+    }
+    res.json({ success: true, message: "Attendance updated" });
+  } catch (err) {
+    console.error("❌ Bulk attendance update error:", err);
+    res.status(500).json({ success: false, message: "Bulk update failed" });
   }
+});
+
+// POST – upsert by roll
+router.post("/", async (req, res) => {
+  const records = Array.isArray(req.body) ? req.body : [req.body];
 
   try {
     for (const entry of records) {
