@@ -36,22 +36,46 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/delete", async (req, res) => {
-   try {
-     const { rolls } = req.body;
-     if (!Array.isArray(rolls)) return res.status(400).json({ success: false, message: "Invalid data" });
- 
-     const deleteResult = await Student.deleteMany({ roll: { $in: rolls } });
-     await Attendance.deleteMany({ roll: { $in: rolls } });
-     await Fees.deleteMany({ roll: { $in: rolls } });
-     await Marks.deleteMany({ roll: { $in: rolls } });
- 
-     res.json({ success: true, deleted: deleteResult.deletedCount });
-   } catch (err) {
-     res.status(500).json({ success: false, message: "Error deleting students" });
-   }
- });
+// BULK UPDATE existing students only (used for syncing updates)
+router.put("/bulk", async (req, res) => {
+  try {
+    const incoming = req.body;
+    const updated = [];
 
+    for (const data of incoming) {
+      const updatedStudent = await Student.findOneAndUpdate(
+        { roll: data.roll },
+        data,
+        { new: true }
+      );
+      if (updatedStudent) updated.push(updatedStudent);
+    }
+
+    res.json({ success: true, updated });
+  } catch (error) {
+    console.error("Bulk update error:", error);
+    res.status(500).json({ success: false, message: "Bulk update failed" });
+  }
+});
+
+// DELETE students by roll
+router.post("/delete", async (req, res) => {
+  try {
+    const { rolls } = req.body;
+    if (!Array.isArray(rolls)) return res.status(400).json({ success: false, message: "Invalid data" });
+
+    const deleteResult = await Student.deleteMany({ roll: { $in: rolls } });
+    await Attendance.deleteMany({ roll: { $in: rolls } });
+    await Fees.deleteMany({ roll: { $in: rolls } });
+    await Marks.deleteMany({ roll: { $in: rolls } });
+
+    res.json({ success: true, deleted: deleteResult.deletedCount });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Error deleting students" });
+  }
+});
+
+// UPSERT students (used for both create and update)
 router.post("/", async (req, res) => {
   try {
     const incoming = req.body;
@@ -79,7 +103,6 @@ router.post("/", async (req, res) => {
     res.status(500).json({ success: false, message: "Bulk upsert failed" });
   }
 });
-
 
 // GET a student by roll
 router.get("/:roll", async (req, res) => {
@@ -111,7 +134,7 @@ router.put("/:roll", async (req, res) => {
   }
 });
 
-// GET marks by roll (read-only)
+// GET marks by roll
 router.get("/:roll/marks", async (req, res) => {
   try {
     const marks = await Marks.findOne({ roll: req.params.roll });
@@ -124,7 +147,7 @@ router.get("/:roll/marks", async (req, res) => {
   }
 });
 
-// GET fees by roll (read-only)
+// GET fees by roll
 router.get("/:roll/fees", async (req, res) => {
   try {
     const fees = await Fees.findOne({ roll: req.params.roll });
@@ -137,7 +160,7 @@ router.get("/:roll/fees", async (req, res) => {
   }
 });
 
-// GET attendance by roll (read-only)
+// GET attendance by roll
 router.get("/:roll/attendance", async (req, res) => {
   try {
     const attendance = await Attendance.findOne({ roll: req.params.roll });
@@ -156,7 +179,6 @@ router.post("/create", async (req, res) => {
     const newStudent = new Student(req.body);
     await newStudent.save();
 
-    // Attendance
     const attendance = new Attendance({
       roll: newStudent.roll,
       name: newStudent.name,
@@ -168,7 +190,6 @@ router.post("/create", async (req, res) => {
     });
     await attendance.save();
 
-    // Fees
     const fees = new Fees({
       roll: newStudent.roll,
       name: newStudent.name,
@@ -180,13 +201,12 @@ router.post("/create", async (req, res) => {
     });
     await fees.save();
 
-    // Marks
     const emptySubject = {
       sub1: { ca1: 0, ca2: 0, ca3: 0, ca4: 0 },
       sub2: { ca1: 0, ca2: 0, ca3: 0, ca4: 0 },
       sub3: { ca1: 0, ca2: 0, ca3: 0, ca4: 0 },
       sub4: { ca1: 0, ca2: 0, ca3: 0, ca4: 0 },
-      sub5: { ca1: 0, ca2: 0, ca3: 0, ca4: 0 },
+      sub5: { ca1: 0, ca2: 0, ca3: 0, ca4: 0 }
     };
 
     const marks = new Marks({
