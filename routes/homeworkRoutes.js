@@ -1,21 +1,22 @@
+
 const express = require("express");
 const router = express.Router();
-const Homework = require("../models/Homework");
+const Classwork = require("../models/Homework");
 
-// GET all homework
+// GET all classwork
 router.get("/", async (req, res) => {
   try {
-    const data = await Homework.find().sort({ date: -1 });
+    const data = await Classwork.find().sort({ date: -1 });
     res.json({ success: true, data });
   } catch {
     res.status(500).json({ success: false, message: "Failed to fetch homework" });
   }
 });
 
-// POST new homework
+// POST new classwork
 router.post("/", async (req, res) => {
   try {
-    const newItem = new Homework(req.body);
+    const newItem = new Classwork(req.body);
     await newItem.save();
     res.status(201).json({ success: true, message: "Homework added" });
   } catch {
@@ -26,7 +27,7 @@ router.post("/", async (req, res) => {
 // DELETE by ID
 router.delete("/:id", async (req, res) => {
   try {
-    await Homework.findByIdAndDelete(req.params.id);
+    await Classwork.findByIdAndDelete(req.params.id);
     res.json({ success: true, message: "Homework deleted" });
   } catch {
     res.status(500).json({ success: false, message: "Delete failed" });
